@@ -39,6 +39,7 @@ SOFTWARE.
 #include <sstream>
 #include <assert.h>
 #include <string.h>
+#include <zlib.h>
 
 #ifdef USE_ZSTD
 #include <zstd.h>
@@ -163,19 +164,17 @@ void Dataset::read(void *data, const std::vector<size_t> &chunkOffset) const
 #ifdef USE_ZSTD
     case ZSTD_H5FILTER: {
 	ZSTD_decompress(data,s/_dim[0], rawData.data, rawData.size);
-//         std::cout << s/2068/2164 << " " << rawData.size << " " << _dim[0] << " " << _dim[1] << " " << _dim[2] << std::endl ;
-//           std::cout << "i" << std::endl;       
-//         for (int i = 0; i < _dim[0]; i++) {
-//             size_t oneChunkSize = s/_dim[0];
-//             char *outBuf = (char *) data + i * oneChunkSize;
-//             ZSTD_decompress(data, oneChunkSize, rawData.data, rawData.size);         
-//         }
     } break;
 #endif
     case BSHUF_H5FILTER: {
         readBitshuffleData(rawData, data, s);
     } break;
+    case 1: {
+        uLongf dest_size = s/_dim[0];
+        uncompress((Bytef*) data, &dest_size, (const Bytef*)rawData.data, rawData.size);
+    } break;
     default:
+        std::cout << _filterId << std::endl;
         throw std::runtime_error("Unknown filter");
     }
 }
