@@ -40,6 +40,9 @@ SOFTWARE.
 #include <assert.h>
 #include <string.h>
 
+#ifdef USE_ZSTD
+#include <zstd.h>
+#endif
 
 Dataset::Dataset():
     _filterId(-1),
@@ -107,9 +110,17 @@ void Dataset::readLz4Data(Dataset::ConstDataPointer rawData, void *data, size_t 
 void Dataset::readBitshuffleData(ConstDataPointer rawData, void *data, size_t s) const
 {
     assert (_filterCdValues.size() > 4);
+#ifdef USE_ZSTD
+    assert ((_filterCdValues[4] == BSHUF_H5_COMPRESS_LZ4) || (_filterCdValues[4] == BSHUF_H5_COMPRESS_ZSTD));
+    int elementSize = _filterCdValues[2];
+    if (_filterCdValues[4] == BSHUF_H5_COMPRESS_LZ4) bshufUncompressLz4(rawData.data,(char*)data,s,elementSize);
+    else bshufUncompressZstd(rawData.data,(char*)data,s,elementSize);
+#else
     assert (_filterCdValues[4] == BSHUF_H5_COMPRESS_LZ4);
     int elementSize = _filterCdValues[2];
     bshufUncompressLz4(rawData.data,(char*)data,s,elementSize);
+
+#endif
 }
 
 size_t Dataset::getSizeOfOutData() const
@@ -149,6 +160,18 @@ void Dataset::read(void *data, const std::vector<size_t> &chunkOffset) const
     case LZ4_FILTER: {
         readLz4Data(rawData, data, s);
     } break;
+#ifdef USE_ZSTD
+    case ZSTD_H5FILTER: {
+	ZSTD_decompress(data,s/_dim[0], rawData.data, rawData.size);
+//         std::cout << s/2068/2164 << " " << rawData.size << " " << _dim[0] << " " << _dim[1] << " " << _dim[2] << std::endl ;
+//           std::cout << "i" << std::endl;       
+//         for (int i = 0; i < _dim[0]; i++) {
+//             size_t oneChunkSize = s/_dim[0];
+//             char *outBuf = (char *) data + i * oneChunkSize;
+//             ZSTD_decompress(data, oneChunkSize, rawData.data, rawData.size);         
+//         }
+    } break;
+#endif
     case BSHUF_H5FILTER: {
         readBitshuffleData(rawData, data, s);
     } break;

@@ -70,6 +70,8 @@ private:
    void parseDataSymbolTable();
    void readRawData(ConstDataPointer rawData, void *outData, size_t outDataSize) const;
    void readLz4Data(ConstDataPointer rawData, void *data, size_t s) const;
+   void readGzipData(ConstDataPointer rawData, void *data, size_t s) const;
+   void readZstdData(ConstDataPointer rawData, void *data, size_t s) const;
    void readBitshuffleData(ConstDataPointer rawData, void *data, size_t s) const;
    size_t getSizeOfOutData() const;
    ConstDataPointer getRawData(const std::vector<size_t> &chunkOffset) const;

@@ -19,5 +19,6 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
-
-add_library(NEGGIA_COMPRESSION_ALGORITHMS OBJECT lz4.c bitshuffle.c)
+add_definitions(-DUSE_ZSTD)
+include_directories(/usr/local/include)
+add_library(NEGGIA_COMPRESSION_ALGORITHMS OBJECT lz4.c bitshuffle.c iochain.c bitshuffle_core.c)

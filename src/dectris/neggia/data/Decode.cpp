@@ -116,3 +116,19 @@ void bshufUncompressLz4(const char *inBuffer, char *outBuffer, size_t &outBuffer
       throw std::runtime_error(errStream.str());
    }
 }
+
+#ifdef USE_ZSTD
+void bshufUncompressZstd(const char *inBuffer, char *outBuffer, size_t &outBufferSize, size_t elementSize)
+{
+   size_t blockSize;
+   readLz4Header(inBuffer,outBufferSize,blockSize);
+   if(outBufferSize % elementSize) throw std::runtime_error("Non integer number of elements");
+   int64_t err = bshuf_decompress_zstd(inBuffer, outBuffer, outBufferSize/elementSize, elementSize, blockSize/elementSize);
+   if(err < 0) {
+      std::stringstream errStream;
+      errStream << "bitshuffle returned with error code: "<<err;
+      throw std::runtime_error(errStream.str());
+   }
+}
+
+#endif

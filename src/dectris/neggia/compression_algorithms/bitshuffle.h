@@ -25,124 +25,15 @@
  */
 
 
-
 #ifndef BITSHUFFLE_H
 #define BITSHUFFLE_H
 
+#include <stdlib.h>
+#include "bitshuffle_core.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
-
-#include <stdint.h>
-#include <stdlib.h>
-
-
-// These are usually set in the setup.py.
-#ifndef BSHUF_VERSION_MAJOR
-#define BSHUF_VERSION_MAJOR 0
-#define BSHUF_VERSION_MINOR 2
-#define BSHUF_VERSION_POINT 0
-#endif
-
-
-/* --- bshuf_using_SSE2 ----
- *
- * Whether routines where compiled with the SSE2 instruction set.
- *
- * Returns
- * -------
- *  1 if using SSE2, 0 otherwise.
- *
- */
-int bshuf_using_SSE2(void);
-
-
-/* ---- bshuf_using_AVX2 ----
- *
- * Whether routines where compiled with the AVX2 instruction set.
- *
- * Returns
- * -------
- *  1 if using AVX2, 0 otherwise.
- *
- */
-int bshuf_using_AVX2(void);
-
-
-/* ---- bshuf_default_block_size ----
- *
- * The default block size as function of element size.
- *
- * This is the block size used by the blocked routines (any routine
- * taking a *block_size* argument) when the block_size is not provided
- * (zero is passed).
- *
- * The results of this routine are guaranteed to be stable such that
- * shuffled/compressed data can always be decompressed.
- *
- * Parameters
- * ----------
- *  elem_size : element size of data to be shuffled/compressed.
- *
- */
-size_t bshuf_default_block_size(const size_t elem_size);
-
-
-/* ---- bshuf_bitshuffle ----
- *
- * Bitshuffle the data.
- *
- * Transpose the bits within elements, in blocks of *block_size*
- * elements.
- *
- * Parameters
- * ----------
- *  in : input buffer, must be of size * elem_size bytes
- *  out : output buffer, must be of size * elem_size bytes
- *  size : number of elements in input
- *  elem_size : element size of typed data
- *  block_size : Do transpose in blocks of this many elements. Pass 0 to
- *  select automatically (recommended).
- *
- * Returns
- * -------
- *  number of bytes processed, negative error-code if failed.
- *
- */
-int64_t bshuf_bitshuffle(void* in, void* out, const size_t size,
-        const size_t elem_size, size_t block_size);
-
-
-/* ---- bshuf_bitunshuffle ----
- *
- * Unshuffle bitshuffled data.
- *
- * Untranspose the bits within elements, in blocks of *block_size*
- * elements.
- *
- * To properly unshuffle bitshuffled data, *size*, *elem_size* and *block_size*
- * must match the parameters used to shuffle the data.
- *
- * Parameters
- * ----------
- *  in : input buffer, must be of size * elem_size bytes
- *  out : output buffer, must be of size * elem_size bytes
- *  size : number of elements in input
- *  elem_size : element size of typed data
- *  block_size : Do transpose in blocks of this many elements. Pass 0 to
- *  select automatically (recommended).
- *
- * Returns
- * -------
- *  number of bytes processed, negative error-code if failed.
- *
- */
-int64_t bshuf_bitunshuffle(void* in, void* out, const size_t size,
-        const size_t elem_size, size_t block_size);
-
 
 /* ---- bshuf_compress_lz4_bound ----
  *
@@ -178,7 +69,7 @@ size_t bshuf_compress_lz4_bound(const size_t size,
  *
  * Parameters
  * ----------
- *  in : input buffer, must be of size * elem_size bytes 
+ *  in : input buffer, must be of size * elem_size bytes
  *  out : output buffer, must be large enough to hold data.
  *  size : number of elements in input
  *  elem_size : element size of typed data
@@ -225,8 +116,22 @@ int64_t bshuf_compress_lz4(const void* in, void* out, const size_t size, const s
 int64_t bshuf_decompress_lz4(const void* in, void* out, const size_t size,
         const size_t elem_size, size_t block_size);
 
+#ifdef USE_ZSTD
+
+size_t bshuf_compress_zstd_bound(const size_t size,
+        const size_t elem_size, size_t block_size);
+
+int64_t bshuf_compress_zstd(const void* in, void* out, const size_t size, const size_t
+        elem_size, size_t block_size);
+
+int64_t bshuf_decompress_zstd(const void* in, void* out, const size_t size,
+        const size_t elem_size, size_t block_size);
+
+#endif
+
+
 #ifdef __cplusplus
-}
+} // extern "C"
 #endif
 
 #endif  // BITSHUFFLE_H

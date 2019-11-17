@@ -20,17 +20,18 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
 
+add_definitions(-DUSE_ZSTD)
 add_subdirectory(compression_algorithms)
 add_subdirectory(data)
 add_subdirectory(user)
 add_subdirectory(plugin)
 
-find_package(DectrisHdf5)
-find_package(GTest)
-if(DectrisHdf5_FOUND AND GTest_FOUND)
-    message(STATUS "Enabling tests")
-    add_subdirectory(test)
-else()
-    message(STATUS "Requirements not satisfied. Tests disabled")
-endif()
+#find_package(DectrisHdf5)
+#find_package(GTest)
+#if(DectrisHdf5_FOUND AND GTest_FOUND)
+#    message(STATUS "Enabling tests")
+#    add_subdirectory(test)
+#else()
+#    message(STATUS "Requirements not satisfied. Tests disabled")
+#endif()
 add_library(neggia_static $<TARGET_OBJECTS:NEGGIA_DATA> $<TARGET_OBJECTS:NEGGIA_USER> $<TARGET_OBJECTS:NEGGIA_COMPRESSION_ALGORITHMS>)

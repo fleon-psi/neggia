@@ -26,14 +26,24 @@ SOFTWARE.
 #define DECODE_H
 #include <cstdlib>
 
-#define LZ4_FILTER 32004
+#define LZ4_FILTER     32004
 #define BSHUF_H5FILTER 32008
+
 #define BSHUF_H5_COMPRESS_LZ4 2
 
-
-void lz4Decode(const char * inBuffer, char * outBuffer, size_t & outBufferSize);
+void lz4Decode(const char * inBuffer, char * outBuffer, size_t & outBufferSize); 
 void bshufUncompressLz4(const char * inBuffer, char * outBuffer, size_t & outBufferSize, size_t elementSize);
 
+#ifdef USE_ZSTD
+
+#define BSHUF_H5_COMPRESS_ZSTD 3
+#define ZSTD_H5FILTER  32015
+
+void uncompressZstd(const char *inBuffer, char *outBuffer, size_t &outBufferSize, size_t elementSize);
+void uncompressGzip(const char *inBuffer, char *outBuffer, size_t &outBufferSize, size_t elementSize);
+void bshufUncompressZstd(const char *inBuffer, char *outBuffer, size_t &outBufferSize, size_t elementSize);
+
+#endif
 
 #endif // DECODE_H
 
